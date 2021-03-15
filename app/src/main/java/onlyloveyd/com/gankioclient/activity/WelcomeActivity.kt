@@ -26,8 +26,7 @@ import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.activity_welcome.*
-import onlyloveyd.com.gankioclient.R
+import onlyloveyd.com.gankioclient.databinding.ActivityWelcomeBinding
 import org.jetbrains.anko.startActivity
 import java.util.concurrent.TimeUnit
 
@@ -41,13 +40,17 @@ import java.util.concurrent.TimeUnit
  */
 class WelcomeActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityWelcomeBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.requestFeature(Window.FEATURE_NO_TITLE)
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        setContentView(R.layout.activity_welcome)
-        ptv.init("Kotlin Gank")
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        binding = ActivityWelcomeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.ptv.init("Kotlin Gank")
+
         Observable.timer(2000, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : Observer<Long> {
@@ -58,6 +61,7 @@ class WelcomeActivity : AppCompatActivity() {
                     override fun onSubscribe(d: Disposable) {
 
                     }
+
                     override fun onError(e: Throwable) {
 
                     }

@@ -22,7 +22,6 @@ import android.os.Bundle
 import cn.bingoogolapple.refreshlayout.BGARefreshLayout
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.fragment_gank.*
 import onlyloveyd.com.gankioclient.BuildConfig
 import onlyloveyd.com.gankioclient.activity.GankActivity
 import onlyloveyd.com.gankioclient.data.DailyData
@@ -43,7 +42,7 @@ class DailyFragment : BaseFragment(), OnDatePickedListener {
 
     override fun initBGAData() {
         (activity as GankActivity).setOnDatePickedListener(this)
-        rl_gank_refresh.beginRefreshing()
+        binding.rlGankRefresh.beginRefreshing()
     }
 
     private fun getDaily(year: Int, month: Int, day: Int) {
@@ -63,24 +62,20 @@ class DailyFragment : BaseFragment(), OnDatePickedListener {
             }
 
             override fun onNext(dailyData: DailyData) {
-                if(rl_gank_refresh==null) {
-                    return
-                }
-                if (rl_gank_refresh.isLoadingMore()) {
-                } else {
+                if (!binding.rlGankRefresh.isLoadingMore) {
                     mVisitableList.clear()
                 }
-                if (dailyData.category == null || dailyData.category.size == 0) {
+                if (dailyData.category.isEmpty()) {
                     onDataEmpty()
                 } else {
-                    dailyData.results.android?.let { mVisitableList.addAll(it) }
-                    dailyData.results.app?.let { mVisitableList.addAll(it) }
-                    dailyData.results.bonus?.let { mVisitableList.addAll(it) }
-                    dailyData.results.ios?.let { mVisitableList.addAll(it) }
-                    dailyData.results.js?.let { mVisitableList.addAll(it) }
-                    dailyData.results.rec?.let { mVisitableList.addAll(it) }
-                    dailyData.results.res?.let { mVisitableList.addAll(it) }
-                    dailyData.results.video?.let { mVisitableList.addAll(it) }
+                    dailyData.results.android.let { mVisitableList.addAll(it) }
+                    dailyData.results.app.let { mVisitableList.addAll(it) }
+                    dailyData.results.bonus.let { mVisitableList.addAll(it) }
+                    dailyData.results.ios.let { mVisitableList.addAll(it) }
+                    dailyData.results.js.let { mVisitableList.addAll(it) }
+                    dailyData.results.rec.let { mVisitableList.addAll(it) }
+                    dailyData.results.res.let { mVisitableList.addAll(it) }
+                    dailyData.results.video.let { mVisitableList.addAll(it) }
                 }
                 mMultiRecyclerAdapter?.data = mVisitableList;
             }
@@ -98,7 +93,7 @@ class DailyFragment : BaseFragment(), OnDatePickedListener {
 
 
     override fun onDatePicked(year: Int, month: Int, day: Int) {
-        rl_gank_refresh.beginRefreshing()
+        binding.rlGankRefresh.beginRefreshing()
         // getDaily(year,  month+1, day);
     }
 

@@ -26,7 +26,6 @@ import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.fragment_gank.*
 import onlyloveyd.com.gankioclient.data.MindData
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -44,7 +43,7 @@ import java.util.*
 class MindFragment : BaseFragment() {
 
     override fun initBGAData() {
-        rl_gank_refresh.beginRefreshing()
+        binding.rlGankRefresh.beginRefreshing()
     }
 
     fun getContent(category: String?, pagenum: Int) {
@@ -64,11 +63,7 @@ class MindFragment : BaseFragment() {
             }
 
             override fun onNext(mindDataArrayList: ArrayList<MindData>) {
-                if (rl_gank_refresh == null) {
-                    return
-                }
-                if (rl_gank_refresh.isLoadingMore()) {
-                } else {
+                if (!binding.rlGankRefresh.isLoadingMore) {
                     mVisitableList.clear()
                 }
                 if (mindDataArrayList.size == 0) {
@@ -94,7 +89,7 @@ class MindFragment : BaseFragment() {
 
                         val trs = doc!!.select("table").select("tr")
                         for (i in trs.indices) {
-                            var data = MindData("", "", "")
+                            val data = MindData("", "", "")
                             val time = trs[i].select("td")[1]
                             data.time = time.text()
 
@@ -104,7 +99,7 @@ class MindFragment : BaseFragment() {
                             data.title = detail.select("a").text()
                             data.author = detail.select("small").text()
                             mindDataArrayList.add(data)
-                            System.err.println("yidong data = " + data)
+                            System.err.println("yidong data = $data")
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -129,11 +124,8 @@ class MindFragment : BaseFragment() {
     }
 
     companion object {
-
         fun newInstance(): MindFragment {
-
             val args = Bundle()
-
             val fragment = MindFragment()
             fragment.arguments = args
             return fragment

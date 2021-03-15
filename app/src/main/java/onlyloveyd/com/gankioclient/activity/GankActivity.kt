@@ -27,15 +27,13 @@ import android.view.Menu
 import android.view.MenuItem
 import com.flyco.tablayout.listener.CustomTabEntity
 import com.flyco.tablayout.listener.OnTabSelectListener
-import kotlinx.android.synthetic.main.activity_gank.*
 import onlyloveyd.com.gankioclient.R
 import onlyloveyd.com.gankioclient.adapter.GankAdapter
+import onlyloveyd.com.gankioclient.databinding.ActivityGankBinding
 import onlyloveyd.com.gankioclient.decorate.OnDatePickedListener
 import onlyloveyd.com.gankioclient.utils.Constant
-import onlyloveyd.com.gankioclient.utils.PublicTools
 import onlyloveyd.com.gankioclient.utils.RxPermissionUtils
 import onlyloveyd.com.gankioclient.view.TabEntity
-import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
 import java.util.*
 
@@ -49,9 +47,8 @@ import java.util.*
  */
 class GankActivity : AppCompatActivity() {
 
-
+    private lateinit var binding: ActivityGankBinding
     private var mainMenu: Menu? = null
-
     private var mOnDatePickedListener: OnDatePickedListener? = null
 
     private val mIconUnselectIds = intArrayOf(R.mipmap.tab_daily_unselect, R.mipmap.tab_sort_unselect, R.mipmap.tab_bonus_unselect, R.mipmap.tab_about_unselect)
@@ -65,29 +62,27 @@ class GankActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_gank)
+        binding = ActivityGankBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
 
         for (i in Constant.sTabTitles.indices) {
-            mTabEntities.add(
-                    TabEntity(Constant.sTabTitles[i], mIconSelectIds[i], mIconUnselectIds[i]))
+            mTabEntities.add(TabEntity(Constant.sTabTitles[i], mIconSelectIds[i], mIconUnselectIds[i]))
         }
-        val gankAdapter = GankAdapter(supportFragmentManager)
-        vp_main.setAdapter(gankAdapter)
+        binding.vpMain.adapter = GankAdapter(supportFragmentManager)
 
-        t2_2.setTabData(mTabEntities)
-        t2_2.setOnTabSelectListener(object : OnTabSelectListener {
+        binding.t22.setTabData(mTabEntities)
+        binding.t22.setOnTabSelectListener(object : OnTabSelectListener {
             override fun onTabSelect(position: Int) {
-                vp_main.setCurrentItem(position)
+                binding.vpMain.currentItem = position
             }
 
             override fun onTabReselect(position: Int) {}
         })
 
-        vp_main.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrolled(position: Int, positionOffset: Float,
-                                        positionOffsetPixels: Int) {
+        binding.vpMain.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
             }
 
             override fun onPageSelected(position: Int) {
@@ -102,7 +97,7 @@ class GankActivity : AppCompatActivity() {
                 } else {
                     showFilter(mainMenu)
                 }
-                t2_2.setCurrentTab(position)
+                binding.t22.currentTab = position
             }
 
             override fun onPageScrollStateChanged(state: Int) {

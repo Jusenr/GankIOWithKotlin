@@ -16,16 +16,16 @@
 
 package onlyloveyd.com.gankioclient.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.support.v4.view.MotionEventCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import onlyloveyd.com.gankioclient.R
+import onlyloveyd.com.gankioclient.databinding.RvItemSortBinding
 import onlyloveyd.com.gankioclient.decorate.ItemTouchHelperAdapter
 import onlyloveyd.com.gankioclient.decorate.ItemTouchHelperViewHolder
 import onlyloveyd.com.gankioclient.decorate.OnStartDragListener
@@ -43,12 +43,11 @@ import java.util.*
 class OrderAdapter(private val mContext: Context, private val mDragStartListener: OnStartDragListener) : RecyclerView.Adapter<OrderAdapter.ItemViewHolder>(), ItemTouchHelperAdapter {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.rv_item_sort, parent,
-                false)
-        val itemViewHolder = ItemViewHolder(view)
-        return itemViewHolder
+        val binding = RvItemSortBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ItemViewHolder(binding)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         holder.textView.text = Constant.sCategoryList[position]
         if (Constant.sTypeColor[Constant.sCategoryList[position]] != null) {
@@ -59,7 +58,7 @@ class OrderAdapter(private val mContext: Context, private val mDragStartListener
         }
 
         // Start a drag whenever the handle view it touched
-        holder.handleView.setOnTouchListener { v, event ->
+        holder.handleView.setOnTouchListener { _, event ->
             if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
                 mDragStartListener.onStartDrag(holder)
             }
@@ -85,18 +84,12 @@ class OrderAdapter(private val mContext: Context, private val mDragStartListener
      * Simple example of a view holder that implements [ItemTouchHelperViewHolder] and has a
      * "handle" view that initiates a drag event when touched.
      */
-    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), ItemTouchHelperViewHolder {
+    inner class ItemViewHolder(binding: RvItemSortBinding) : RecyclerView.ViewHolder(binding.root), ItemTouchHelperViewHolder {
 
-        val textView: TextView
-        val handleView: ImageView
-
-        init {
-            textView = itemView.findViewById(R.id.text)
-            handleView = itemView.findViewById(R.id.handle)
-        }
+        val textView: TextView = binding.text
+        val handleView: ImageView = binding.handle
 
         override fun onItemSelected() {
-
             //itemView.setBackgroundColor(Color.LTGRAY);
         }
 

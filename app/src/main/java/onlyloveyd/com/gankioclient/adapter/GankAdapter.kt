@@ -39,12 +39,12 @@ import onlyloveyd.com.gankioclient.utils.Constant
 class GankAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
     override fun getItem(position: Int): Fragment? {
-        when (position) {
-            0 -> return DailyFragment.newInstance()
-            1 -> return SortFragment.newInstance()
-            2 -> return MindFragment.newInstance()
-            3 -> return AboutFragment.newInstance()
-            else -> return null
+        return when (position) {
+            0 -> DailyFragment.newInstance()
+            1 -> SortFragment.newInstance()
+            2 -> MindFragment.newInstance()
+            3 -> AboutFragment.newInstance()
+            else -> null
         }
     }
 

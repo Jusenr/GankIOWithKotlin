@@ -22,7 +22,6 @@ import android.os.Bundle
 import cn.bingoogolapple.refreshlayout.BGARefreshLayout
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.fragment_gank.*
 import onlyloveyd.com.gankioclient.data.TypeData
 import onlyloveyd.com.gankioclient.http.HttpMethods
 
@@ -38,7 +37,7 @@ open class GankFragment : BaseFragment() {
     internal var pagenum = 1
 
     override fun initBGAData() {
-        rl_gank_refresh.beginRefreshing()
+        binding.rlGankRefresh.beginRefreshing()
     }
 
     fun getContent(category: String, pagenum: Int) {
@@ -58,14 +57,10 @@ open class GankFragment : BaseFragment() {
             }
 
             override fun onNext(httpBean: TypeData) {
-                if(rl_gank_refresh==null) {
-                    return
-                }
-                if (rl_gank_refresh.isLoadingMore()) {
-                } else {
+                if (!binding.rlGankRefresh.isLoadingMore) {
                     mVisitableList.clear()
                 }
-                if (httpBean.results == null || httpBean.results.size == 0) {
+                if (httpBean.results.isEmpty()) {
                     onDataEmpty()
                 } else {
                     mVisitableList.addAll(httpBean.results)

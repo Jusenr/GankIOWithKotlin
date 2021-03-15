@@ -24,13 +24,12 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import butterknife.ButterKnife
 import cn.bingoogolapple.refreshlayout.BGANormalRefreshViewHolder
 import cn.bingoogolapple.refreshlayout.BGARefreshLayout
-import kotlinx.android.synthetic.main.fragment_gank.*
 import onlyloveyd.com.gankioclient.R
 import onlyloveyd.com.gankioclient.adapter.MultiRecyclerAdapter
 import onlyloveyd.com.gankioclient.data.EmptyData
+import onlyloveyd.com.gankioclient.databinding.FragmentGankBinding
 import onlyloveyd.com.gankioclient.decorate.Visitable
 import java.util.*
 
@@ -44,20 +43,23 @@ import java.util.*
  */
 open class BaseFragment : Fragment(), BGARefreshLayout.BGARefreshLayoutDelegate {
 
+    private var _binding: FragmentGankBinding? = null
+    internal val binding get() = _binding!!
+
     internal var mMultiRecyclerAdapter: MultiRecyclerAdapter? = null
     internal var mVisitableList: MutableList<Visitable> = ArrayList()
 
     internal var arg: String? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater!!.inflate(R.layout.fragment_gank, container, false)
-        ButterKnife.bind(this, view)
+        _binding = FragmentGankBinding.inflate(inflater, container, false)
+
         val args = arguments
         if (args != null) {
             arg = args.getString("ARG")
         }
 
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,23 +70,26 @@ open class BaseFragment : Fragment(), BGARefreshLayout.BGARefreshLayoutDelegate 
         initBGAData()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun initBGALayout() {
         // 为BGARefreshLayout 设置代理
-        rl_gank_refresh.setDelegate(this)
+        binding.rlGankRefresh.setDelegate(this)
         // 设置下拉刷新和上拉加载更多的风格     参数1：应用程序上下文，参数2：是否具有上拉加载更多功能
 
         val refreshViewHolder = BGANormalRefreshViewHolder(context, true)
         refreshViewHolder.setLoadingMoreText(getString(R.string.load_more))
         refreshViewHolder.setLoadMoreBackgroundColorRes(R.color.white)
         refreshViewHolder.setRefreshViewBackgroundColorRes(R.color.white)
-        rl_gank_refresh.setRefreshViewHolder(refreshViewHolder)
+        binding.rlGankRefresh.setRefreshViewHolder(refreshViewHolder)
     }
 
     private fun initRvContent() {
-        var llm = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        mMultiRecyclerAdapter = MultiRecyclerAdapter(null)
-        rv_content.layoutManager = llm
-        rv_content.adapter = mMultiRecyclerAdapter
+        binding.rvContent.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        binding.rvContent.adapter = MultiRecyclerAdapter(null)
     }
 
     open fun initBGAData() {}
@@ -118,11 +123,11 @@ open class BaseFragment : Fragment(), BGARefreshLayout.BGARefreshLayoutDelegate 
      * 停止刷新或者加载更多
      */
     fun endLoading() {
-        rl_gank_refresh?.let {
-            if (rl_gank_refresh.isLoadingMore) {
-                rl_gank_refresh.endLoadingMore()
+        binding.rlGankRefresh.let {
+            if (binding.rlGankRefresh.isLoadingMore) {
+                binding.rlGankRefresh.endLoadingMore()
             } else {
-                rl_gank_refresh.endRefreshing()
+                binding.rlGankRefresh.endRefreshing()
             }
         }
     }

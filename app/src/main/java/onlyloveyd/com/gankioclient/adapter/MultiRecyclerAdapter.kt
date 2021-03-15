@@ -34,12 +34,8 @@ import onlyloveyd.com.gankioclient.viewholder.BaseViewHolder
  * 博   客: https://onlyloveyd.cn
  * 描   述：通用Adapter
  */
-class MultiRecyclerAdapter(internal var mData: List<Visitable>?) : RecyclerView.Adapter<BaseViewHolder<Any>>() {
-    internal var typeFactory: TypeFactory
-
-    init {
-        this.typeFactory = GankTypeFactory()
-    }
+class MultiRecyclerAdapter(private var mData: List<Visitable>?) : RecyclerView.Adapter<BaseViewHolder<Any>>() {
+    private var typeFactory: TypeFactory = GankTypeFactory()
 
     var data: List<Visitable>?
         get() = mData

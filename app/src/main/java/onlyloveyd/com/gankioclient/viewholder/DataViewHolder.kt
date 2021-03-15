@@ -40,57 +40,50 @@ import java.util.*
 class DataViewHolder(itemView: View) : BaseViewHolder<CategoryData>(itemView) {
 
     override fun bindViewData(data: CategoryData) {
-
-        if (data != null) {
-            val tvTitle = getView(R.id.tv_title) as TextView
-            val tvAuthor = getView(R.id.tv_author) as TextView
-            val tvDate = getView(R.id.tv_date) as TextView
-            val tvType = getView(R.id.tv_type) as TextView
-            // 标题
-            if (TextUtils.isEmpty(data.desc)) {
-                tvTitle.text = ""
-            } else {
-                tvTitle.text = data.desc.trim { it <= ' ' }
-            }
-            // 时间
-            if (data.publishedAt == null) {
-                tvDate.text = ""
-            } else {
-                var time = data.publishedAt
-                time = time.substring(0, 19).replace("T", " ")
-                val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                var date: Date? = null
-                try {
-                    date = sdf.parse(time)
-                } catch (e: ParseException) {
-                    e.printStackTrace()
-                }
-
-                if (date == null) {
-                    tvDate.text = ""
-                } else {
-                    tvDate.text = PublicTools.getTimestampString(date)
-                }
-            }
-
-            // 作者
-            if (TextUtils.isEmpty(data.who)) {
-                tvAuthor.text = ""
-            } else {
-                tvAuthor.text = data.who
-            }
-
-            if (TextUtils.isEmpty(data.type)) {
-                tvType.text = ""
-            } else {
-                tvType.text = data.type
-                Constant.sTypeColor[data.type]?.let {
-                    tvType.setBackgroundResource(
-                            it)
-                }
-            }
-
-            itemView.setOnClickListener { PublicTools.startWebActivity(itemView.context, data.url) }
+        val tvTitle = getView(R.id.tv_title) as TextView
+        val tvAuthor = getView(R.id.tv_author) as TextView
+        val tvDate = getView(R.id.tv_date) as TextView
+        val tvType = getView(R.id.tv_type) as TextView
+        // 标题
+        if (TextUtils.isEmpty(data.desc)) {
+            tvTitle.text = ""
+        } else {
+            tvTitle.text = data.desc.trim { it <= ' ' }
         }
+        // 时间
+        var time = data.publishedAt
+        time = time.substring(0, 19).replace("T", " ")
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA)
+        var date: Date? = null
+        try {
+            date = sdf.parse(time)
+        } catch (e: ParseException) {
+            e.printStackTrace()
+        }
+
+        if (date == null) {
+            tvDate.text = ""
+        } else {
+            tvDate.text = PublicTools.getTimestampString(date)
+        }
+
+        // 作者
+        if (TextUtils.isEmpty(data.who)) {
+            tvAuthor.text = ""
+        } else {
+            tvAuthor.text = data.who
+        }
+
+        if (TextUtils.isEmpty(data.type)) {
+            tvType.text = ""
+        } else {
+            tvType.text = data.type
+            Constant.sTypeColor[data.type]?.let {
+                tvType.setBackgroundResource(
+                        it)
+            }
+        }
+
+        itemView.setOnClickListener { PublicTools.startWebActivity(itemView.context, data.url) }
     }
 }

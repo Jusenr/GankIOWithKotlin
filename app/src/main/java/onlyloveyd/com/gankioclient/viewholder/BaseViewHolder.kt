@@ -32,12 +32,8 @@ import android.view.View
  * 博   客: https://onlyloveyd.cn
  * 描   述：ViewHolder 泛型基类
  */
-abstract class BaseViewHolder<T>(internal var mItemView: View) : RecyclerView.ViewHolder(mItemView) {
-    internal var mViews: SparseArray<View>
-
-    init {
-        mViews = SparseArray<View>()
-    }
+abstract class BaseViewHolder<T>(private var mItemView: View) : RecyclerView.ViewHolder(mItemView) {
+    private var mViews: SparseArray<View> = SparseArray<View>()
 
     fun getView(resId: Int): View {
         var view: View? = mViews.get(resId)

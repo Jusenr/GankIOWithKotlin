@@ -1,7 +1,6 @@
 package onlyloveyd.com.gankioclient.fragment
 
 import cn.bingoogolapple.refreshlayout.BGARefreshLayout
-import kotlinx.android.synthetic.main.fragment_gank.*
 import onlyloveyd.com.gankioclient.utils.Constant
 
 /**
@@ -14,9 +13,9 @@ import onlyloveyd.com.gankioclient.utils.Constant
  */
 class BonusFragment : GankFragment() {
 
-    override fun initBGAData():Unit = rl_gank_refresh.beginRefreshing()
+    override fun initBGAData(): Unit = binding.rlGankRefresh.beginRefreshing()
 
-    override fun onBGARefreshLayoutBeginRefreshing(refreshLayout: BGARefreshLayout):Unit=getContent(Constant.BONUS, 1)
+    override fun onBGARefreshLayoutBeginRefreshing(refreshLayout: BGARefreshLayout): Unit = getContent(Constant.BONUS, 1)
 
     override fun onBGARefreshLayoutBeginLoadingMore(refreshLayout: BGARefreshLayout): Boolean {
         getContent(Constant.BONUS, ++pagenum)

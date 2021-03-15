@@ -23,9 +23,8 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.fragment_sort.*
-import onlyloveyd.com.gankioclient.R
 import onlyloveyd.com.gankioclient.adapter.TabAdapter
+import onlyloveyd.com.gankioclient.databinding.FragmentSortBinding
 import onlyloveyd.com.gankioclient.utils.Constant
 
 /**
@@ -38,30 +37,22 @@ import onlyloveyd.com.gankioclient.utils.Constant
  */
 class SortFragment : Fragment() {
 
+    private var _binding: FragmentSortBinding? = null
+    private val binding get() = _binding!!
 
     private var tabAdapter: TabAdapter? = null
     private var mCurrentTag = "all"
 
-    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
-        super.setUserVisibleHint(isVisibleToUser)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater!!.inflate(R.layout.fragment_sort, null, false)
-
-        return view
+        _binding = FragmentSortBinding.inflate(inflater, container, false)
+        return binding.root
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         tabAdapter = TabAdapter(childFragmentManager)
-        vp_view.adapter = tabAdapter
-        indicator.setViewPager(vp_view)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
+        binding.vpView.adapter = tabAdapter
+        binding.indicator.setViewPager(binding.vpView)
     }
 
     override fun onResume() {
@@ -69,12 +60,12 @@ class SortFragment : Fragment() {
         if (Constant.sCategryListChanged) {
             tabAdapter = null
             tabAdapter = TabAdapter(childFragmentManager)
-            vp_view.removeAllViews()
-            vp_view.adapter = tabAdapter
-            indicator!!.setViewPager(vp_view)
+            binding.vpView.removeAllViews()
+            binding.vpView.adapter = tabAdapter
+            binding.indicator.setViewPager(binding.vpView)
             for (i in Constant.sCategoryList.indices) {
                 if (Constant.sCategoryList[i] == mCurrentTag) {
-                    vp_view.setCurrentItem(i, true)
+                    binding.vpView.setCurrentItem(i, true)
                 }
             }
         }
@@ -82,12 +73,16 @@ class SortFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        vp_view?.let { mCurrentTag = Constant.sCategoryList[it.currentItem] }
+        binding.vpView.let { mCurrentTag = Constant.sCategoryList[it.currentItem] }
         Constant.sCategryListChanged = false
     }
 
-    companion object {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
+    companion object {
         fun newInstance(): SortFragment {
             val args = Bundle()
             val fragment = SortFragment()

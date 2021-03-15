@@ -23,7 +23,6 @@ import android.os.Environment
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.animation.GlideAnimation
 import com.bumptech.glide.request.target.SimpleTarget
@@ -52,104 +51,98 @@ import java.io.File
 class BonusViewHolder(itemView: View) : BaseViewHolder<CategoryData>(itemView) {
 
     override fun bindViewData(data: CategoryData) {
+        val ivPic = getView(R.id.imgPicture) as ImageView
+        val ibDownload = getView(R.id.ib_download) as ImageButton
+        Glide.with(itemView.context).load(data.url).into(ivPic)
 
-        if (data != null) {
-            val ivPic = getView(R.id.imgPicture) as ImageView
-            val ibDownload = getView(R.id.ib_download) as ImageButton
-            Glide.with(itemView.context).load(data.url).into(ivPic)
+        val rxPermissions = RxPermissionUtils.instance
+        ibDownload.setOnClickListener {
+            rxPermissions?.request(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    ?.subscribe(object : Observer<Boolean> {
+                        override fun onSubscribe(d: Disposable) {
 
-            val rxPermissions = RxPermissionUtils.instance
-            ibDownload.setOnClickListener {
-                if (rxPermissions != null) {
-                    rxPermissions
-                            .request(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            .subscribe(object : Observer<Boolean> {
-                                override fun onSubscribe(d: Disposable) {
+                        }
 
-                                }
+                        override fun onNext(granted: Boolean) {
+                            if (granted) { // Always true pre-M
+                                // I can control the camera now
+                                itemView.context.toast(data.desc +
+                                        Constant.SUFFIX_JPEG + "开始下载")
+                                Glide.with(itemView.context).load(
+                                        data.url).asBitmap().into(
+                                        object : SimpleTarget<Bitmap>() {
+                                            override fun onResourceReady(
+                                                    resource: Bitmap,
+                                                    glideAnimation: GlideAnimation<in Bitmap>) {
 
-                                override fun onNext(granted: Boolean) {
-                                    if (granted!!) { // Always true pre-M
-                                        // I can control the camera now
-                                        itemView.context.toast(data.desc +
-                                                Constant.SUFFIX_JPEG + "开始下载")
-                                        Glide.with(itemView.context).load(
-                                                data.url).asBitmap().into(
-                                                object : SimpleTarget<Bitmap>() {
-                                                    override fun onResourceReady(
-                                                            resource: Bitmap,
-                                                            glideAnimation: GlideAnimation<in Bitmap>) {
+                                                val subscriber = object : Observer<Bitmap> {
+                                                    override fun onSubscribe(
+                                                            d: Disposable) {
 
-                                                        val subscriber = object : Observer<Bitmap> {
-                                                            override fun onSubscribe(
-                                                                    d: Disposable) {
-
-                                                            }
-
-                                                            override fun onNext(
-                                                                    s: Bitmap) {
-                                                            }
-
-                                                            override fun onError(
-                                                                    e: Throwable) {
-
-                                                                itemView.context.toast(data.desc +
-                                                                        Constant.SUFFIX_JPEG
-                                                                        +
-                                                                        "下载失败")
-                                                                e.printStackTrace()
-                                                            }
-
-                                                            override fun onComplete() {
-
-                                                                itemView.context.toast(data.desc +
-                                                                        Constant.SUFFIX_JPEG
-                                                                        +
-                                                                        "下载成功")
-                                                            }
-                                                        }
-
-                                                        val observable = Observable.create(
-                                                                ObservableOnSubscribe<Bitmap> { emitter ->
-                                                                    try {
-                                                                        PublicTools.saveBitmap(
-                                                                                resource,
-                                                                                Environment
-                                                                                        .getExternalStorageDirectory().absolutePath
-                                                                                        + File.separator
-                                                                                        + data.desc)
-                                                                    } catch (e: Exception) {
-                                                                        e.printStackTrace()
-                                                                        emitter.onError(
-                                                                                e)
-                                                                    }
-
-                                                                    emitter.onComplete()
-                                                                })
-
-                                                        observable.subscribeOn(Schedulers.io())
-                                                                .unsubscribeOn(Schedulers.io())
-                                                                .observeOn(
-                                                                        AndroidSchedulers
-                                                                                .mainThread())
-                                                                .subscribe(subscriber)
                                                     }
-                                                })
-                                    } else {
-                                        itemView.context.toast("请在设置中开启存储权限后再试")
-                                    }
-                                }
 
-                                override fun onError(e: Throwable) {
+                                                    override fun onNext(
+                                                            s: Bitmap) {
+                                                    }
 
-                                }
+                                                    override fun onError(
+                                                            e: Throwable) {
 
-                                override fun onComplete() {
+                                                        itemView.context.toast(data.desc +
+                                                                Constant.SUFFIX_JPEG
+                                                                +
+                                                                "下载失败")
+                                                        e.printStackTrace()
+                                                    }
 
-                                }
-                            })
-                }
-            }
+                                                    override fun onComplete() {
+
+                                                        itemView.context.toast(data.desc +
+                                                                Constant.SUFFIX_JPEG
+                                                                +
+                                                                "下载成功")
+                                                    }
+                                                }
+
+                                                val observable = Observable.create(
+                                                        ObservableOnSubscribe<Bitmap> { emitter ->
+                                                            try {
+                                                                PublicTools.saveBitmap(
+                                                                        resource,
+                                                                        Environment
+                                                                                .getExternalStorageDirectory().absolutePath
+                                                                                + File.separator
+                                                                                + data.desc)
+                                                            } catch (e: Exception) {
+                                                                e.printStackTrace()
+                                                                emitter.onError(
+                                                                        e)
+                                                            }
+
+                                                            emitter.onComplete()
+                                                        })
+
+                                                observable.subscribeOn(Schedulers.io())
+                                                        .unsubscribeOn(Schedulers.io())
+                                                        .observeOn(
+                                                                AndroidSchedulers
+                                                                        .mainThread())
+                                                        .subscribe(subscriber)
+                                            }
+                                        })
+                            } else {
+                                itemView.context.toast("请在设置中开启存储权限后再试")
+                            }
+                        }
+
+                        override fun onError(e: Throwable) {
+
+                        }
+
+                        override fun onComplete() {
+
+                        }
+                    })
         }
     }
 }

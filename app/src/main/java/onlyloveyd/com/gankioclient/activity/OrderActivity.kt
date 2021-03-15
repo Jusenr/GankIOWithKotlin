@@ -27,10 +27,9 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.MenuItem
-import butterknife.ButterKnife
-import kotlinx.android.synthetic.main.activity_sort.*
 import onlyloveyd.com.gankioclient.R
 import onlyloveyd.com.gankioclient.adapter.OrderAdapter
+import onlyloveyd.com.gankioclient.databinding.ActivitySortBinding
 import onlyloveyd.com.gankioclient.decorate.OnStartDragListener
 import onlyloveyd.com.gankioclient.decorate.SimpleItemTouchHelperCallback
 
@@ -44,25 +43,27 @@ import onlyloveyd.com.gankioclient.decorate.SimpleItemTouchHelperCallback
  */
 class OrderActivity : AppCompatActivity(), OnStartDragListener {
 
+    private lateinit var binding: ActivitySortBinding
     private var mItemTouchHelper: ItemTouchHelper? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sort)
+        binding = ActivitySortBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        setSupportActionBar(tl_sort)
-        tl_sort.setNavigationIcon(R.drawable.back)
-        tl_sort.setTitleTextAppearance(this, R.style.ToolBarTextAppearance)
+        setSupportActionBar(binding.tlSort)
+        binding.tlSort.setNavigationIcon(R.drawable.back)
+        binding.tlSort.setTitleTextAppearance(this, R.style.ToolBarTextAppearance)
 
         val adapter = OrderAdapter(this, this)
 
-        rv_sort.setHasFixedSize(true)
-        rv_sort.adapter = adapter
-        rv_sort.layoutManager = LinearLayoutManager(this)
+        binding.rvSort.setHasFixedSize(true)
+        binding.rvSort.adapter = adapter
+        binding.rvSort.layoutManager = LinearLayoutManager(this)
 
         val callback = SimpleItemTouchHelperCallback(adapter)
         mItemTouchHelper = ItemTouchHelper(callback)
-        mItemTouchHelper!!.attachToRecyclerView(rv_sort)
+        mItemTouchHelper!!.attachToRecyclerView(binding.rvSort)
     }
 
     override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {

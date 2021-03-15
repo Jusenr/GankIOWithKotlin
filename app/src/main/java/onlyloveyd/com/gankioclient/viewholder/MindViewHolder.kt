@@ -37,37 +37,26 @@ import onlyloveyd.com.gankioclient.utils.PublicTools
 class MindViewHolder(itemView: View) : BaseViewHolder<MindData>(itemView) {
 
     override fun bindViewData(data: MindData) {
-
-        if (data != null) {
-            val tvTitle = getView(R.id.tv_title) as TextView
-            val tvAuthor = getView(R.id.tv_author) as TextView
-            val tvDate = getView(R.id.tv_date) as TextView
-            // 标题
-            if (TextUtils.isEmpty(data.title)) {
-                tvTitle.text = ""
-            } else {
-                tvTitle.text = data.title.trim { it <= ' ' }
-            }
-            // 时间
-            if (data.time == null) {
-                tvDate.text = ""
-            } else {
-                val time = data.time
-                if (time == null) {
-                    tvDate.text = ""
-                } else {
-                    tvDate.text = time
-                }
-            }
-
-            // 作者
-            if (TextUtils.isEmpty(data.author)) {
-                tvAuthor.text = ""
-            } else {
-                tvAuthor.text = data.author
-            }
-
-            itemView.setOnClickListener { PublicTools.startWebActivity(itemView.context, data.url) }
+        val tvTitle = getView(R.id.tv_title) as TextView
+        val tvAuthor = getView(R.id.tv_author) as TextView
+        val tvDate = getView(R.id.tv_date) as TextView
+        // 标题
+        if (TextUtils.isEmpty(data.title)) {
+            tvTitle.text = ""
+        } else {
+            tvTitle.text = data.title.trim { it <= ' ' }
         }
+        // 时间
+        val time = data.time
+        tvDate.text = time
+
+        // 作者
+        if (TextUtils.isEmpty(data.author)) {
+            tvAuthor.text = ""
+        } else {
+            tvAuthor.text = data.author
+        }
+
+        itemView.setOnClickListener { PublicTools.startWebActivity(itemView.context, data.url) }
     }
 }

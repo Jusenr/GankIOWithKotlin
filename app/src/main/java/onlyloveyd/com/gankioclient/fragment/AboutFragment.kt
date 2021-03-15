@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import com.vansuita.materialabout.builder.AboutBuilder
 import onlyloveyd.com.gankioclient.R
 import onlyloveyd.com.gankioclient.utils.Constant
-import onlyloveyd.com.gankioclient.utils.PublicTools
 import org.jetbrains.anko.share
 
 /**
@@ -22,8 +21,7 @@ import org.jetbrains.anko.share
 class AboutFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-        val view = AboutBuilder.with(context)
+        return AboutBuilder.with(context)
                 .setPhoto(R.mipmap.ic_launcher)
                 .setCover(R.mipmap.profile_cover)
                 .setName(getString(R.string.about_name))
@@ -46,11 +44,9 @@ class AboutFragment : Fragment() {
                 .setLinksAnimated(true)
                 .setShowAsCard(true)
                 .build()
-        return view
     }
 
     companion object {
-
         fun newInstance(): AboutFragment {
             val args = Bundle()
             val fragment = AboutFragment()
@@ -58,6 +54,4 @@ class AboutFragment : Fragment() {
             return fragment
         }
     }
-
-
 }

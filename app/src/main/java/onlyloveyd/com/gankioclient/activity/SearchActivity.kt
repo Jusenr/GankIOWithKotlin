@@ -22,18 +22,18 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.MenuItem
 import android.widget.ArrayAdapter
-import butterknife.OnClick
-import butterknife.OnTextChanged
 import cn.bingoogolapple.refreshlayout.BGANormalRefreshViewHolder
 import cn.bingoogolapple.refreshlayout.BGARefreshLayout
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.activity_search.*
 import onlyloveyd.com.gankioclient.R
 import onlyloveyd.com.gankioclient.adapter.MultiRecyclerAdapter
 import onlyloveyd.com.gankioclient.data.SearchData
+import onlyloveyd.com.gankioclient.databinding.ActivitySearchBinding
 import onlyloveyd.com.gankioclient.decorate.Visitable
 import onlyloveyd.com.gankioclient.http.HttpMethods
 import onlyloveyd.com.gankioclient.utils.PublicTools
@@ -52,62 +52,84 @@ class SearchActivity : AppCompatActivity(), BGARefreshLayout.BGARefreshLayoutDel
     internal var mMultiRecyclerAdapter: MultiRecyclerAdapter? = null
     internal var mVisitableList: MutableList<Visitable> = ArrayList()
 
+    private lateinit var binding: ActivitySearchBinding
     private var pageindex = 1
     private var keyword: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search)
-        setSupportActionBar(tl_search)
-        tl_search.setNavigationIcon(R.drawable.back)
+        binding = ActivitySearchBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setSupportActionBar(binding.tlSearch)
+        binding.tlSearch.setNavigationIcon(R.drawable.back)
 
         initBGALayout()
         initRvContent()
 
-        val adapter = ArrayAdapter.createFromResource(this,
-                R.array.dummy_items, R.layout.spinner_item_text)
+        val adapter = ArrayAdapter.createFromResource(this, R.array.dummy_items, R.layout.spinner_item_text)
         adapter.setDropDownViewResource(R.layout.spinner_item_dropdown_list)
 
-        sp_category.adapter = adapter
+        binding.spCategory.adapter = adapter
+
+        binding.tvSearch.setOnClickListener {
+            PublicTools.hide_keyboard_from(this, binding.etSearch)
+            refreshData()
+        }
+        binding.etSearch.addTextChangedListener(SearchTextWatcher())
+    }
+
+    inner class SearchTextWatcher : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            keyword = s!!.toString()
+            if (s.isEmpty()) {
+                binding.tvSearch.setTextColor(resources.getColor(R.color.colorPrimary))
+                binding.tvSearch.isClickable = false
+            } else {
+                binding.tvSearch.setTextColor(resources.getColor(R.color.white))
+                binding.tvSearch.isClickable = true
+            }
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+
+        }
     }
 
     private fun initBGALayout() {
         // 为BGARefreshLayout 设置代理
-        rl_search_content.setDelegate(this)
+        binding.rlSearchContent.setDelegate(this)
         // 设置下拉刷新和上拉加载更多的风格     参数1：应用程序上下文，参数2：是否具有上拉加载更多功能
         val refreshViewHolder = BGANormalRefreshViewHolder(this, true)
         refreshViewHolder.setLoadingMoreText("加载更多")
         refreshViewHolder.setLoadMoreBackgroundColorRes(R.color.white)
         refreshViewHolder.setRefreshViewBackgroundColorRes(R.color.white)
-        rl_search_content.setRefreshViewHolder(refreshViewHolder)
+        binding.rlSearchContent.setRefreshViewHolder(refreshViewHolder)
     }
 
     private fun initRvContent() {
-        val llm = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,
-                false)
+        val llm = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mMultiRecyclerAdapter = MultiRecyclerAdapter(null)
-        rv_content.layoutManager = llm
-        rv_content.adapter = mMultiRecyclerAdapter
-    }
-
-    @OnClick(R.id.tv_search)
-    fun onClick() {
-        PublicTools.hide_keyboard_from(this, et_search)
-        refreshData()
+        binding.rvContent.layoutManager = llm
+        binding.rvContent.adapter = mMultiRecyclerAdapter
     }
 
     private fun queryGanks(keyword: String, category: String, pageindex: Int) {
         val subscriber = object : Observer<SearchData> {
             override fun onComplete() {
-                if (rl_search_content.isLoadingMore) {
-                    rl_search_content.endLoadingMore()
+                if (binding.rlSearchContent.isLoadingMore) {
+                    binding.rlSearchContent.endLoadingMore()
                 } else {
-                    rl_search_content.endRefreshing()
+                    binding.rlSearchContent.endRefreshing()
                 }
             }
 
             override fun onError(e: Throwable) {
-                Snackbar.make(rv_content, "网络请求错误", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.rvContent, "网络请求错误", Snackbar.LENGTH_SHORT).show()
                 e.printStackTrace()
             }
 
@@ -116,8 +138,7 @@ class SearchActivity : AppCompatActivity(), BGARefreshLayout.BGARefreshLayoutDel
             }
 
             override fun onNext(searchData: SearchData) {
-                if (rl_search_content.isLoadingMore) {
-                } else {
+                if (!binding.rlSearchContent.isLoadingMore) {
                     mVisitableList.clear()
                 }
                 mVisitableList.addAll(searchData.results)
@@ -127,25 +148,13 @@ class SearchActivity : AppCompatActivity(), BGARefreshLayout.BGARefreshLayoutDel
         HttpMethods.instance.searchData(subscriber, keyword, category, pageindex)
     }
 
-    @OnTextChanged(R.id.et_search)
-    fun onTextChange(text: CharSequence) {
-        keyword = text.toString()
-        if (text.toString() == null || text.length == 0) {
-            tv_search.setTextColor(resources.getColor(R.color.colorPrimary))
-            tv_search.isClickable = false
-        } else {
-            tv_search.setTextColor(resources.getColor(R.color.white))
-            tv_search.isClickable = true
-        }
-    }
-
     override fun onBGARefreshLayoutBeginRefreshing(refreshLayout: BGARefreshLayout) {
         refreshData()
     }
 
     override fun onBGARefreshLayoutBeginLoadingMore(refreshLayout: BGARefreshLayout): Boolean {
-        if (keyword != null && keyword!!.length > 0) {
-            val category = sp_category!!.selectedItem as String
+        if (keyword != null && keyword!!.isNotEmpty()) {
+            val category = binding.spCategory.selectedItem as String
             queryGanks(keyword as String, category, ++pageindex)
         }
         return true
@@ -153,9 +162,9 @@ class SearchActivity : AppCompatActivity(), BGARefreshLayout.BGARefreshLayoutDel
 
     private fun refreshData() {
         pageindex = 1
-        rl_search_content!!.beginRefreshing()
-        if (keyword != null && keyword!!.length > 0) {
-            val category = sp_category!!.selectedItem as String
+        binding.rlSearchContent.beginRefreshing()
+        if (keyword != null && keyword!!.isNotEmpty()) {
+            val category = binding.spCategory.selectedItem as String
             queryGanks(keyword as String, category, pageindex)
         }
     }

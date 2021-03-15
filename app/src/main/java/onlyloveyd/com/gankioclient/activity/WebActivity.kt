@@ -30,8 +30,8 @@ import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import kotlinx.android.synthetic.main.activity_web.*
 import onlyloveyd.com.gankioclient.R
+import onlyloveyd.com.gankioclient.databinding.ActivityWebBinding
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.share
 
@@ -45,11 +45,17 @@ import org.jetbrains.anko.share
  */
 class WebActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityWebBinding
     private var URL: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_web)
+        binding = ActivityWebBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setSupportActionBar(binding.tlWeb)
+        binding.tlWeb.setNavigationIcon(R.drawable.back)
+        binding.tlWeb.setTitleTextAppearance(this, R.style.ToolBarTextAppearance)
 
         val intent = intent
         val bundle = intent.extras
@@ -57,30 +63,27 @@ class WebActivity : AppCompatActivity() {
             URL = bundle.getString("URL")
         }
 
-        setSupportActionBar(tl_web)
-        tl_web.setNavigationIcon(R.drawable.back)
-        tl_web.setTitleTextAppearance(this, R.style.ToolBarTextAppearance)
         initWebViewSettings()
 
-        wv_content.removeJavascriptInterface("searchBoxJavaBridge_")
-        wv_content.removeJavascriptInterface("accessibilityTraversal")
-        wv_content.removeJavascriptInterface("accessibility")
-        wv_content.loadUrl(URL)
+        binding.wvContent.removeJavascriptInterface("searchBoxJavaBridge_")
+        binding.wvContent.removeJavascriptInterface("accessibilityTraversal")
+        binding.wvContent.removeJavascriptInterface("accessibility")
+        binding.wvContent.loadUrl(URL)
     }
 
     public override fun onPause() {
         super.onPause()
-        wv_content?.let { it.onPause() }
+        binding.wvContent.onPause()
     }
 
     public override fun onResume() {
         super.onResume()
-        wv_content?.let { it.onResume() }
+        binding.wvContent.onResume()
     }
 
     public override fun onDestroy() {
         super.onDestroy()
-        wv_content?.let { it.destroy() }
+        binding.wvContent.destroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -103,10 +106,10 @@ class WebActivity : AppCompatActivity() {
                 val clipboardManager = getSystemService(
                         Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboardManager.text = URL
-                Snackbar.make(tl_web, "已复制到剪切板", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.tlWeb, "已复制到剪切板", Snackbar.LENGTH_SHORT).show()
             }
             R.id.refresh -> {
-                wv_content.reload()
+                binding.wvContent.reload()
             }
             else -> {
             }
@@ -115,21 +118,22 @@ class WebActivity : AppCompatActivity() {
     }
 
     private fun initWebViewSettings() {
-        val settings = wv_content.settings
+        val settings = binding.wvContent.settings
         settings.javaScriptEnabled = true
         settings.loadWithOverviewMode = true
         settings.setAppCacheEnabled(true)
         settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.SINGLE_COLUMN
         settings.setSupportZoom(true)
         settings.savePassword = false
-        wv_content.setWebChromeClient(object : WebChromeClient() {
+
+        binding.wvContent.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView, newProgress: Int) {
                 super.onProgressChanged(view, newProgress)
-                progressbar.progress = newProgress
+                binding.progressbar.progress = newProgress
                 if (newProgress == 100) {
-                    progressbar.visibility = View.GONE
+                    binding.progressbar.visibility = View.GONE
                 } else {
-                    progressbar.visibility = View.VISIBLE
+                    binding.progressbar.visibility = View.VISIBLE
                 }
             }
 
@@ -138,12 +142,12 @@ class WebActivity : AppCompatActivity() {
                 super.onReceivedTitle(view, title)
                 setTitle(title)
             }
-        })
-        wv_content.setWebViewClient(object : WebViewClient() {
+        }
+        binding.wvContent.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String?): Boolean {
                 url?.let { view.loadUrl(it) }
                 return true
             }
-        })
+        }
     }
 }
